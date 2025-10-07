@@ -108,5 +108,6 @@ alias sshpw='ssh -o PubkeyAuthentication=no'
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
 
-. "$HOME/.local/bin/env"
+#. "$HOME/.local/bin/env"
+[ -f "$HOME/.local/bin/env" ] && . "$HOME/.local/bin/env"
 export PATH="$HOME/.local/bin:$PATH"
