@@ -105,6 +105,7 @@ source $ZSH/oh-my-zsh.sh
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 alias sshpw='ssh -o PubkeyAuthentication=no'
 alias update-zsh='curl -fsSL https://raw.githubusercontent.com/nickpdawson/dotfiles/main/zshrc -o ~/.zshrc && source ~/.zshrc && echo "✓ .zshrc updated from GitHub"'
+alias push-zsh='cd ~/dotfiles && cp ~/.zshrc zshrc && git add zshrc && git commit -m "Update .zshrc - $(date +%Y-%m-%d\ %H:%M)" && git push origin main && cd - > /dev/null'
 
 
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
