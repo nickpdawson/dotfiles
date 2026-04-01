@@ -110,6 +110,83 @@ alias push-zsh='cd ~/dotfiles && cp ~/.zshrc zshrc && git add zshrc && git commi
 
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
+# iTerm2 tab color escape helper
+_iterm2_tab_rgb() {
+    printf "\033]6;1;bg;red;brightness;%d\a" $1
+    printf "\033]6;1;bg;green;brightness;%d\a" $2
+    printf "\033]6;1;bg;blue;brightness;%d\a" $3
+}
+
+# Classify a hostname and set tab color accordingly
+_iterm2_color_for_host() {
+    local host="${1:-$(hostname 2>/dev/null || echo unknown)}"
+    host="${host%%.*}"  # strip domain, just short name
+    host="${host:l}"    # lowercase (zsh)
+
+    case "$host" in
+        bridger|showdown|yellowstone|wintergreen|moran|verbier)
+            _iterm2_tab_rgb 220 60 60 ;;        # Red — Domain Controllers
+        maverick|steamboat|skyline|thyon|whistler)
+            _iterm2_tab_rgb 80 210 80 ;;         # Lime/Green — Portainer/Docker hosts
+        ridge|localhost)
+            _iterm2_tab_rgb 230 200 50 ;;        # Yellow — local process
+        *)
+            _iterm2_tab_rgb 160 90 220 ;;        # Purple — other SSH hosts
+    esac
+}
+
+# Set tab color on shell startup
+iterm2_set_tab_color() {
+    if [[ -n "$SSH_CONNECTION" ]]; then
+        _iterm2_color_for_host                  # Color by remote hostname
+    else
+        _iterm2_tab_rgb 230 200 50              # Yellow — local process
+    fi
+}
+
+# Wrap ssh to set tab color for destination, reset on exit
+ssh() {
+    # Extract the target hostname (skip flags and their arguments)
+    local target=""
+    local skip_next=false
+    for arg in "$@"; do
+        if $skip_next; then skip_next=false; continue; fi
+        case "$arg" in
+            -*) # flags that take a value
+                case "$arg" in
+                    -[bcDEeFIiJLlmOopQRSWw]) skip_next=true ;;
+                esac ;;
+            *)  # first non-flag arg is the destination
+                target="$arg"
+                # strip user@ if present
+                target="${target#*@}"
+                break ;;
+        esac
+    done
+
+    if [[ -n "$target" ]]; then
+        _iterm2_color_for_host "$target"
+    fi
+
+    command ssh "$@"
+    local ret=$?
+
+    # Reset tab color after SSH session ends
+    iterm2_set_tab_color
+    return $ret
+}
+
+# Wrap claude to set tab orange, reset on exit
+claude() {
+    _iterm2_tab_rgb 230 150 50                  # Orange — Claude Code session
+    command claude "$@"
+    local ret=$?
+    iterm2_set_tab_color
+    return $ret
+}
+
+# Set color on shell startup
+iterm2_set_tab_color
 
 #. "$HOME/.local/bin/env"
 [ -f "$HOME/.local/bin/env" ] && . "$HOME/.local/bin/env"
