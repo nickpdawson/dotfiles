@@ -194,3 +194,11 @@ iterm2_set_tab_color
 #. "$HOME/.local/bin/env"
 [ -f "$HOME/.local/bin/env" ] && . "$HOME/.local/bin/env"
 export PATH="$HOME/.local/bin:$PATH"
+
+# 1Password SSH agent — points ssh-add / ssh-keygen / git etc. at the same
+# agent ssh uses via IdentityAgent in ~/.ssh/config. Without this, those tools
+# fall back to macOS's empty default agent and report "no identities."
+# Only at local console; SSH'd-in shells keep the forwarded agent socket.
+if [ -z "$SSH_CONNECTION" ]; then
+    export SSH_AUTH_SOCK="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+fi
