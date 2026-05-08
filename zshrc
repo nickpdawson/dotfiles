@@ -202,3 +202,11 @@ export PATH="$HOME/.local/bin:$PATH"
 if [ -z "$SSH_CONNECTION" ]; then
     export SSH_AUTH_SOCK="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
 fi
+
+# Stable forwarded-agent socket on SSH targets that have ~/.ssh/rc set up to
+# refresh the ~/.ssh/agent.sock symlink. Long-running processes (tmux, Claude
+# Code) pin SSH_AUTH_SOCK to the symlink and survive disconnect/reconnect
+# without env refresh. No-op on hosts without the symlink.
+if [ -n "$SSH_CONNECTION" ] && [ -L "$HOME/.ssh/agent.sock" ]; then
+    export SSH_AUTH_SOCK="$HOME/.ssh/agent.sock"
+fi
