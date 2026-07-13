@@ -109,6 +109,7 @@ source $ZSH/oh-my-zsh.sh
 alias sshpw='ssh -o PubkeyAuthentication=no'
 alias update-zsh='curl -fsSL https://raw.githubusercontent.com/nickpdawson/dotfiles/main/zshrc -o ~/.zshrc && source ~/.zshrc && echo "✓ .zshrc updated from GitHub"'
 alias push-zsh='cd ~/dotfiles && cp ~/.zshrc zshrc && git add zshrc && git commit -m "Update .zshrc - $(date +%Y-%m-%d\ %H:%M)" && git push origin main && cd - > /dev/null'
+alias NDC='cd ~/Development/Notes && claude --dangerously-skip-permissions'
 
 
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
@@ -201,12 +202,4 @@ export PATH="$HOME/.local/bin:$PATH"
 # Only at local console; SSH'd-in shells keep the forwarded agent socket.
 if [ -z "$SSH_CONNECTION" ]; then
     export SSH_AUTH_SOCK="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
-fi
-
-# Stable forwarded-agent socket on SSH targets that have ~/.ssh/rc set up to
-# refresh the ~/.ssh/agent.sock symlink. Long-running processes (tmux, Claude
-# Code) pin SSH_AUTH_SOCK to the symlink and survive disconnect/reconnect
-# without env refresh. No-op on hosts without the symlink.
-if [ -n "$SSH_CONNECTION" ] && [ -L "$HOME/.ssh/agent.sock" ]; then
-    export SSH_AUTH_SOCK="$HOME/.ssh/agent.sock"
 fi
