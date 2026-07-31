@@ -1,0 +1,17 @@
+# bench.iot.dzsec.net dual-boots Ubuntu and FreeBSD on ONE IP (10.15.9.76).
+# HostKeyAlias keys known_hosts per-OS so the two host keys never collide.
+# Key is pinned to admin@dzsec (1P agent) — without IdentitiesOnly the agent
+# burns MaxAuthTries offering unrelated keys.
+Host bench-ubuntu
+    HostName bench.iot.dzsec.net
+    HostKeyAlias bench-ubuntu
+    User administrator
+    IdentitiesOnly yes
+    IdentityFile ~/.ssh/admin_dzsec.pub
+
+Host bench-fbsd
+    HostName bench.iot.dzsec.net
+    HostKeyAlias bench-fbsd
+    User administrator
+    IdentitiesOnly yes
+    IdentityFile ~/.ssh/admin_dzsec.pub
