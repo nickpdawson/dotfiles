@@ -1,0 +1,40 @@
+# 1Password SSH agent config
+# Order = the order keys are offered to servers. Infra keys first so root@/admin@
+# authenticate on the first attempt (well under MaxAuthTries=6).
+# Per-host pins in ~/dotfiles/ssh/config.d/dzsec-keys override this for specific hosts,
+# so hosts needing a lower-priority key still work regardless of position here.
+# Keys NOT listed are NOT offered by the agent. Add new 1P SSH keys here to expose them.
+
+# --- Infra (offered first) ---
+[[ssh-keys]]
+item = "DZsec Roots"            # root@ on-prem + PROD/DEV LXCs
+
+[[ssh-keys]]
+item = "DZsec Administrators"   # administrator@ / admin tier
+
+# --- Personal / general ---
+[[ssh-keys]]
+item = "ndawson@dzsec.net"      # personal identity
+
+[[ssh-keys]]
+item = "DZsec Utility Account"  # azuser, utility
+
+# --- Edge / external ---
+[[ssh-keys]]
+item = "Canyon DMZ Key"         # canyon break-glass (also pinned per-host)
+
+[[ssh-keys]]
+item = "GitHub 2026"            # github.com (also pinned per-host)
+
+[[ssh-keys]]
+item = "Non-domain utility accounts"  # pi / standalone
+
+# ---- Excluded from daily agent (uncomment when needed) ----
+# [[ssh-keys]]
+# item = "DZsec Hosted Roots"          # cloud break-glass
+#
+# [[ssh-keys]]
+# item = "router.lynchburg.dzsec.net"  # device key
+#
+# [[ssh-keys]]
+# item = "Cloud Services"              # legacy?

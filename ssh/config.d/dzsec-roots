@@ -1,0 +1,8 @@
+# PROD/DEV docker LXCs (10.15.20.x, 10.15.25.x) authenticate root@ with the
+# "DZsec Roots" 1P key. Pin it so the agent offers ONLY that key — without
+# IdentitiesOnly the agent cycles other keys and burns MaxAuthTries (the
+# crosscut/bigsky root@ symptom). Same pattern as dzsec-bench.
+# Matches when connecting by IP (ssh root@10.15.20.10); add aliases if you use them.
+Match user root host 10.15.20.*,10.15.25.*
+    IdentitiesOnly yes
+    IdentityFile ~/.ssh/dzsec_roots.pub
