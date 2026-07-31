@@ -14,7 +14,15 @@ link() { mkdir -p "$(dirname "$2")"; ln -snf "$1" "$2"; echo "  link $2 -> $1"; 
 # --- configs ---
 link "$DOT/zshrc" "$HOME/.zshrc"
 link "$DOT/1password/agent.toml" "$HOME/.config/1Password/ssh/agent.toml"
-mkdir -p "$HOME/.ssh"
+mkdir -p "$HOME/.ssh"; chmod 700 "$HOME/.ssh"
+
+# Ensure ~/.ssh/config pulls in the synced host fragments (idempotent, prepended).
+SSHCFG="$HOME/.ssh/config"; INC="Include ~/dotfiles/ssh/config.d/*"
+touch "$SSHCFG"; chmod 600 "$SSHCFG"
+if ! grep -qF "$INC" "$SSHCFG"; then
+  { printf '%s\n\n' "$INC"; cat "$SSHCFG"; } > "$SSHCFG.tmp" && mv "$SSHCFG.tmp" "$SSHCFG"
+  echo "  added Include -> ~/.ssh/config"
+fi
 
 # --- regenerate public-key selectors from the 1P agent ---
 # gen "<exact 1P item name>" <selector filename>
