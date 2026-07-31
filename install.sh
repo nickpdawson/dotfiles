@@ -39,4 +39,34 @@ gen "ndawson@dzsec.net"    ndawson.pub
 gen "Canyon DMZ Key"       canyon_dmz.pub
 gen "GitHub 2026"          github_2026.pub
 
+# --- remotes: fetch over public HTTPS (agent-free, works under cron/launchd), push over SSH ---
+git -C "$DOT" remote set-url origin https://github.com/nickpdawson/dotfiles.git 2>/dev/null || true
+git -C "$DOT" remote set-url --push origin git@github.com:nickpdawson/dotfiles.git 2>/dev/null || true
+
+# --- schedule the connectivity-checked pull every 30 min ---
+case "$(uname -s)" in
+  Darwin)
+    PL="$HOME/Library/LaunchAgents/net.dzsec.dotfiles-pull.plist"
+    mkdir -p "$HOME/Library/LaunchAgents"
+    cat > "$PL" <<PLIST
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>Label</key><string>net.dzsec.dotfiles-pull</string>
+  <key>ProgramArguments</key><array><string>$DOT/bin/pull-dotfiles.sh</string></array>
+  <key>StartInterval</key><integer>1800</integer>
+  <key>RunAtLoad</key><true/>
+  <key>StandardOutPath</key><string>/tmp/dotfiles-pull.log</string>
+  <key>StandardErrorPath</key><string>/tmp/dotfiles-pull.log</string>
+</dict></plist>
+PLIST
+    launchctl bootout "gui/$(id -u)/net.dzsec.dotfiles-pull" 2>/dev/null || true
+    launchctl bootstrap "gui/$(id -u)" "$PL" 2>/dev/null && echo "  scheduled: launchd every 30m" || echo "  launchd bootstrap skipped"
+    ;;
+  Linux)
+    LINE="*/30 * * * * $DOT/bin/pull-dotfiles.sh >/dev/null 2>&1"
+    ( crontab -l 2>/dev/null | grep -vF "pull-dotfiles.sh"; echo "$LINE" ) | crontab - && echo "  scheduled: cron every 30m"
+    ;;
+esac
+
 echo "done. (ssh host pins live in $DOT/ssh/config.d/, included by ~/.ssh/config)"
