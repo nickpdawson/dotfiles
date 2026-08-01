@@ -3,6 +3,13 @@
 # IdentitiesOnly the agent cycles other keys and burns MaxAuthTries (the
 # crosscut/bigsky root@ symptom). Same pattern as dzsec-bench.
 # Matches when connecting by IP (ssh root@10.15.20.10); add aliases if you use them.
-Match user root host 10.15.20.*,10.15.25.*
+Match user root host 10.15.20.*,10.15.25.*,10.15.42.*
+    IdentitiesOnly yes
+    IdentityFile ~/.ssh/dzsec_roots.pub
+
+# taos — audiobooks LXC (CT 112, PERSONAL, US egress). Libation + Audiobookshelf.
+Host taos taos.dzsec.net
+    HostName 10.15.42.30
+    User root
     IdentitiesOnly yes
     IdentityFile ~/.ssh/dzsec_roots.pub
