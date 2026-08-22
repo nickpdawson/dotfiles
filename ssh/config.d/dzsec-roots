@@ -13,3 +13,12 @@ Host taos taos.dzsec.net
     User root
     IdentitiesOnly yes
     IdentityFile ~/.ssh/dzsec_roots.pub
+
+# corbet — stepzero agent CT (225, DEV). Name resolves the trap that
+# corbet.dev.dzsec.net's A-record points at whistler/NPM: HostName pins the
+# real CT IP for both spellings.
+Host corbet corbet.dev.dzsec.net
+    HostName 10.15.25.30
+    User root
+    IdentitiesOnly yes
+    IdentityFile ~/.ssh/dzsec_roots.pub
