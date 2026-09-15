@@ -7,6 +7,14 @@ Match user root host 10.15.20.*,10.15.25.*,10.15.42.*
     IdentitiesOnly yes
     IdentityFile ~/.ssh/dzsec_roots.pub
 
+# Hetzner/cloud root@ — vail (pfSense), lapland (PVE host), europe 10.55.x.
+# Authorizes "DZsec Hosted Roots", which sits last in agent.toml; the pin makes
+# order irrelevant. dzsec_roots.pub listed second as fallback (2 offers max).
+Match user root host vail.os.dzsec.net,lapland.os.dzsec.net,10.55.*
+    IdentitiesOnly yes
+    IdentityFile ~/.ssh/dzsec_hosted_roots.pub
+    IdentityFile ~/.ssh/dzsec_roots.pub
+
 # taos — audiobooks LXC (CT 112, PERSONAL, US egress). Libation + Audiobookshelf.
 Host taos taos.dzsec.net
     HostName 10.15.42.30

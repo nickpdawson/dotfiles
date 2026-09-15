@@ -29,10 +29,12 @@ item = "GitHub 2026"            # github.com (also pinned per-host)
 [[ssh-keys]]
 item = "Non-domain utility accounts"  # pi / standalone
 
+# --- Cloud (offered last; per-host pins in ~/dotfiles/ssh/config.d/dzsec-roots
+#     make position irrelevant for the hosts that use it) ---
+[[ssh-keys]]
+item = "DZsec Hosted Roots"     # root@ Hetzner/cloud (vail, lapland)
+
 # ---- Excluded from daily agent (uncomment when needed) ----
-# [[ssh-keys]]
-# item = "DZsec Hosted Roots"          # cloud break-glass
-#
 # [[ssh-keys]]
 # item = "router.lynchburg.dzsec.net"  # device key
 #
