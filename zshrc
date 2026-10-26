@@ -119,8 +119,7 @@ alias NDC='cd ~/Development/Notes && claude --dangerously-skip-permissions'
 # after a reconnect, remote ssh/git signs through whichever machine you
 # attached from. Reattach with NDCt/t_claude, not bare `tmux attach`, or the
 # link isn't refreshed. The link is per session because the shared
-# ~/.ssh/agent.sock is repointed by every forwarded login (~/.ssh/rc) and goes
-# dead when that login exits.
+# ~/.ssh/agent.sock (ssh/rc) only follows whichever login reached it first.
 # Plain tmux only, never -CC: the fullscreen TUI breaks in iTerm2 control mode.
 _tmux_claude() {
     local session=$1 host=$2 dir=$3

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Idempotent dotfiles apply. Run on any machine after `git pull`.
-# - Symlinks zshrc + the 1Password agent.toml into place.
+# - Symlinks zshrc, ~/.ssh/rc and the 1Password agent.toml into place.
 # - Regenerates ~/.ssh/*.pub SELECTORS from the running 1Password agent.
 #   Private keys never leave 1Password; the .pub files just tell SSH which
 #   agent key to offer for a pinned host (IdentityFile + IdentitiesOnly).
@@ -15,6 +15,8 @@ link() { mkdir -p "$(dirname "$2")"; ln -snf "$1" "$2"; echo "  link $2 -> $1"; 
 link "$DOT/zshrc" "$HOME/.zshrc"
 link "$DOT/1password/agent.toml" "$HOME/.config/1Password/ssh/agent.toml"
 mkdir -p "$HOME/.ssh"; chmod 700 "$HOME/.ssh"
+# sshd runs ~/.ssh/rc at each login; it keeps ~/.ssh/agent.sock (pinned by zshrc) live.
+link "$DOT/ssh/rc" "$HOME/.ssh/rc"
 
 # Ensure ~/.ssh/config pulls in the synced host fragments (idempotent, prepended).
 SSHCFG="$HOME/.ssh/config"; INC="Include ~/dotfiles/ssh/config.d/*"
