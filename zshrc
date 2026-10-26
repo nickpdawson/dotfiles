@@ -111,6 +111,52 @@ alias update-zsh='curl -fsSL https://raw.githubusercontent.com/nickpdawson/dotfi
 alias push-zsh='cd ~/dotfiles && cp ~/.zshrc zshrc && git add zshrc && git commit -m "Update .zshrc - $(date +%Y-%m-%d\ %H:%M)" && git push origin main && cd - > /dev/null'
 alias NDC='cd ~/Development/Notes && claude --dangerously-skip-permissions'
 
+# Run claude inside tmux on a remote host so the session survives closing the
+# laptop. Re-running with the same session name reattaches (extra claude flags
+# are ignored on reattach). Detach with C-b d.
+# Agent forwarding: each connect repoints ~/.ssh/agent.sock at the new
+# forwarded socket and the pane pins SSH_AUTH_SOCK to that symlink, so after a
+# reconnect, remote ssh/git signs through whichever machine you attached from.
+# Plain tmux only, never -CC: the fullscreen TUI breaks in iTerm2 control mode.
+_tmux_claude() {
+    local session=$1 host=$2 dir=$3
+    shift 3
+    session=${session//[.:]/_}   # tmux rejects . and : in session names
+    # Parsed by the shell tmux starts in the pane. Drop to a shell when claude
+    # exits so its last output stays readable.
+    local pane="claude --dangerously-skip-permissions ${(j: :)${(q)@}}; exec \"\$SHELL\" -l"
+    # Parsed by the remote login shell. PATH covers Homebrew (chamonix) and
+    # ~/.local/bin (jacksonhole); -e passes it in case the tmux server is
+    # already running with a thinner environment.
+    local remote="
+        [ -n \"\$SSH_AUTH_SOCK\" ] || { echo 'No forwarded agent on $host; check ForwardAgent and 1Password.' >&2; exit 1; }
+        [ \"\$SSH_AUTH_SOCK\" = \"\$HOME/.ssh/agent.sock\" ] || ln -sfn \"\$SSH_AUTH_SOCK\" \"\$HOME/.ssh/agent.sock\"
+        cd \"\$HOME/\"${(q)dir} || exit 1
+        export PATH=\"/opt/homebrew/bin:\$HOME/.local/bin:\$PATH\"
+        exec tmux new-session -A -s ${(q)session} -c \"\$PWD\" \
+            -e \"PATH=\$PATH\" -e \"SSH_AUTH_SOCK=\$HOME/.ssh/agent.sock\" ${(q)pane}"
+    ssh -t -o ForwardAgent=yes "$host" "$remote"
+}
+
+# NDCt <host> [claude flags]: NDC, but in tmux on <host>.
+NDCt() {
+    [[ -n $1 ]] || { echo "usage: NDCt <host> [claude flags]" >&2; return 2; }
+    local host=$1
+    shift
+    _tmux_claude NDC "$host" Development/Notes "$@"
+}
+
+# t_claude <host> [claude flags]: claude in tmux on <host>, in the same
+# $HOME-relative directory you're in here. Session is named for the directory.
+t_claude() {
+    [[ -n $1 ]] || { echo "usage: t_claude <host> [claude flags]" >&2; return 2; }
+    [[ $PWD == $HOME || $PWD == $HOME/* ]] || { echo "t_claude: $PWD is outside \$HOME" >&2; return 2; }
+    local host=$1 dir=${PWD#$HOME}
+    shift
+    dir=${dir#/}
+    _tmux_claude "claude-${${dir:t}:-home}" "$host" "$dir" "$@"
+}
+
 
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
