@@ -114,14 +114,19 @@ alias NDC='cd ~/Development/Notes && claude --dangerously-skip-permissions'
 # Run claude inside tmux on a remote host so the session survives closing the
 # laptop. Re-running with the same session name reattaches (extra claude flags
 # are ignored on reattach). Detach with C-b d.
-# Agent forwarding: each connect repoints ~/.ssh/agent.sock at the new
-# forwarded socket and the pane pins SSH_AUTH_SOCK to that symlink, so after a
-# reconnect, remote ssh/git signs through whichever machine you attached from.
+# Agent forwarding: each connect repoints ~/.ssh/agent-<session>.sock at the
+# new forwarded socket and the pane pins SSH_AUTH_SOCK to that symlink, so
+# after a reconnect, remote ssh/git signs through whichever machine you
+# attached from. Reattach with NDCt/t_claude, not bare `tmux attach`, or the
+# link isn't refreshed. The link is per session because the shared
+# ~/.ssh/agent.sock is repointed by every forwarded login (~/.ssh/rc) and goes
+# dead when that login exits.
 # Plain tmux only, never -CC: the fullscreen TUI breaks in iTerm2 control mode.
 _tmux_claude() {
     local session=$1 host=$2 dir=$3
     shift 3
-    session=${session//[.:]/_}   # tmux rejects . and : in session names
+    session=${session//[.:\/]/_}   # tmux rejects . and : in session names
+    local sock="\$HOME/.ssh/agent-$session.sock"
     # Parsed by the shell tmux starts in the pane. Drop to a shell when claude
     # exits so its last output stays readable.
     local pane="claude --dangerously-skip-permissions ${(j: :)${(q)@}}; exec \"\$SHELL\" -l"
@@ -130,11 +135,11 @@ _tmux_claude() {
     # already running with a thinner environment.
     local remote="
         [ -n \"\$SSH_AUTH_SOCK\" ] || { echo 'No forwarded agent on $host; check ForwardAgent and 1Password.' >&2; exit 1; }
-        [ \"\$SSH_AUTH_SOCK\" = \"\$HOME/.ssh/agent.sock\" ] || ln -sfn \"\$SSH_AUTH_SOCK\" \"\$HOME/.ssh/agent.sock\"
+        ln -sfn \"\$SSH_AUTH_SOCK\" \"$sock\"
         cd \"\$HOME/\"${(q)dir} || exit 1
         export PATH=\"/opt/homebrew/bin:\$HOME/.local/bin:\$PATH\"
         exec tmux new-session -A -s ${(q)session} -c \"\$PWD\" \
-            -e \"PATH=\$PATH\" -e \"SSH_AUTH_SOCK=\$HOME/.ssh/agent.sock\" ${(q)pane}"
+            -e \"PATH=\$PATH\" -e \"SSH_AUTH_SOCK=$sock\" ${(q)pane}"
     ssh -t -o ForwardAgent=yes "$host" "$remote"
 }
 
