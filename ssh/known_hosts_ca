@@ -1,0 +1,1 @@
+@cert-authority *.dzsec.net,*.alpinenet.us,10.* ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILaB/YLlaGWyHe76oAwGqfyr3MWWy0he+3W07GVX8ZmZ DZsec SSH Host CA

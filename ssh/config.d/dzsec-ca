@@ -1,0 +1,5 @@
+# Trust hosts that present a cert from the DZsec SSH Host CA, in addition to
+# plain known_hosts entries. ssh writes newly learned keys to the first file
+# only. Runbook: Notes/runbooks/ssh_ca_hermes_20261026.md.
+Host *
+    UserKnownHostsFile ~/.ssh/known_hosts ~/dotfiles/ssh/known_hosts_ca
