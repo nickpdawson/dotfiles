@@ -161,6 +161,32 @@ t_claude() {
     _tmux_claude "claude-${${dir:t}:-home}" "$host" "$dir" "$@"
 }
 
+# hermes-renew: sign Hermes's pinned key for 7 days and install the cert on corbet.
+# Touch ID approves the op read. The CA key exists on disk only for the signing.
+# Not running this is the off switch: hosts refuse the cert once it expires.
+# Runbook: ~/Development/Notes/runbooks/ssh_ca_hermes_20261026.md
+hermes-renew() {
+    local pub=~/Development/Notes/configs/ssh/hermes_ed25519.pub
+    local tmp rc
+    tmp=$(mktemp -d) || return 1
+    op read --out-file "$tmp/ca" "op://Private/DZsec SSH User CA/private key?ssh-format=openssh" >/dev/null \
+        || { rm -rf "$tmp"; return 1; }
+    cp "$pub" "$tmp/hermes.pub"
+    ssh-keygen -q -s "$tmp/ca" -I "hermes-$(date +%G-w%V)" -z "$(date +%s)" -n hermes -V +7d \
+        -O source-address=10.15.25.30 -O no-agent-forwarding -O no-port-forwarding -O no-x11-forwarding \
+        "$tmp/hermes.pub"
+    rc=$?
+    rm -f "$tmp/ca"
+    if (( rc == 0 )); then
+        ssh-keygen -Lf "$tmp/hermes-cert.pub" | grep -E 'Key ID|Valid'
+        scp -q "$tmp/hermes-cert.pub" root@corbet:/home/hermes/.ssh/id_ed25519-cert.pub \
+            && command ssh root@corbet chown hermes: /home/hermes/.ssh/id_ed25519-cert.pub
+        rc=$?
+    fi
+    rm -rf "$tmp"
+    return $rc
+}
+
 
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
