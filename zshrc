@@ -287,3 +287,6 @@ fi
 if [ -n "$SSH_CONNECTION" ] && [ -L "$HOME/.ssh/agent.sock" ]; then
     export SSH_AUTH_SOCK="$HOME/.ssh/agent.sock"
 fi
+
+# Codex Notes helpers (NDG, NDG_t, NDGt).
+[[ -r "$HOME/Development/Notes/configs/zsh/ndg.zsh" ]] && source "$HOME/Development/Notes/configs/zsh/ndg.zsh"
