@@ -41,9 +41,10 @@ gen "ndawson@dzsec.net"    ndawson.pub
 gen "Canyon DMZ Key"       canyon_dmz.pub
 gen "GitHub 2026"          github_2026.pub
 
-# --- remotes: fetch over public HTTPS (agent-free, works under cron/launchd), push over SSH ---
-git -C "$DOT" remote set-url origin https://github.com/nickpdawson/dotfiles.git 2>/dev/null || true
-git -C "$DOT" remote set-url --push origin git@github.com:nickpdawson/dotfiles.git 2>/dev/null || true
+# --- remotes: fetch over anonymous HTTPS from Gitea on matterhorn (agent-free, works under
+#     cron/launchd; git.dzsec.net = 10.15.1.5, internal only), push over git-SSH :30009 ---
+git -C "$DOT" remote set-url origin https://git.dzsec.net:30008/ndawson/dotfiles.git 2>/dev/null || true
+git -C "$DOT" remote set-url --push origin ssh://git@git.dzsec.net:30009/ndawson/dotfiles.git 2>/dev/null || true
 
 # --- schedule the connectivity-checked pull every 30 min ---
 case "$(uname -s)" in

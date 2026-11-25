@@ -1,24 +1,18 @@
 # Dotfiles
 
-My personal dotfiles for zsh configuration across multiple machines.
+zsh, SSH and 1Password agent config for Nick's machines. Hosted on Gitea on matterhorn (internal only); the old GitHub copy is retired.
 
-## Quick Install
-```bash
-curl -fsSL https://raw.githubusercontent.com/nickpdawson/dotfiles/main/zshrc -o ~/.zshrc && source ~/.zshrc
-Update Existing Installation
-bashcurl -fsSL https://raw.githubusercontent.com/nickpdawson/dotfiles/main/zshrc -o ~/.zshrc && source ~/.zshrc
-Or use the built-in alias:
-bashupdate-zsh
-Machines Using This Config
+## Install
 
-Ridge (macOS) - canonical source
-bridger.dzsec.net (FreeBSD)
-showdown.dzsec.net (FreeBSD)
-yellowstone.dzsec.net (FreeBSD)
-matterhorn.dzsec.net (FreeBSD)
-wintergreen.dzsec.net (FreeBSD)
-Various Proxmox VMs and containers
+```
+git clone https://git.dzsec.net:30008/ndawson/dotfiles.git ~/dotfiles
+~/dotfiles/install.sh
+```
 
-Host-Specific Customizations
-Add a ~/.zshrc.local file on each machine for host-specific settings.
-This file won't be overwritten by updates.
+Run `install.sh` with 1Password unlocked (it builds the `~/.ssh/*.pub` key selectors from the agent). It also schedules `bin/pull-dotfiles.sh` every 30 minutes, which fast-forwards from Gitea and skips quietly when matterhorn is unreachable.
+
+Push from a host with the 1Password agent: `git -C ~/dotfiles push` (origin pushes over `ssh://git@git.dzsec.net:30009`).
+
+## Host-specific settings
+
+Put them in `~/.zshrc.local`; updates never overwrite it.
