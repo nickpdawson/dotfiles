@@ -1,0 +1,9 @@
+# GitLab on crosscut (CT 224, DEV). gitlab.dev.dzsec.net resolves to whistler,
+# which only proxies HTTPS, so git-SSH goes straight to the CT on :2224.
+# This makes the clone URLs GitLab shows (ssh://git@gitlab.dev.dzsec.net:2224/...)
+# work unchanged. Key is the 1P item "agent gitlab" (GitLab user `agent`); no
+# IdentityFile pin because the key lives only in 1P, so agent.toml order matters.
+Host gitlab.dev.dzsec.net gitlab-agent
+    HostName 10.15.25.25
+    Port 2224
+    User git

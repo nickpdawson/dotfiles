@@ -16,18 +16,23 @@ item = "DZsec Administrators"   # administrator@ / admin tier
 [[ssh-keys]]
 item = "ndawson@dzsec.net"      # personal identity
 
+# GitLab user `agent` on gitlab.dev.dzsec.net. No pub-file pin (key stays only in
+# 1P), so it must sit within the first 6 offers or GitLab sshd hits MaxAuthTries.
+[[ssh-keys]]
+item = "agent gitlab"
+
 [[ssh-keys]]
 item = "DZsec Utility Account"  # azuser, utility
 
-# --- Edge / external ---
+[[ssh-keys]]
+item = "Non-domain utility accounts"  # pi / standalone
+
+# --- Pinned per-host by a .pub IdentityFile, so their position does not matter ---
 [[ssh-keys]]
 item = "Canyon DMZ Key"         # canyon break-glass (also pinned per-host)
 
 [[ssh-keys]]
 item = "GitHub 2026"            # github.com (also pinned per-host)
-
-[[ssh-keys]]
-item = "Non-domain utility accounts"  # pi / standalone
 
 # --- Cloud (offered last; per-host pins in ~/dotfiles/ssh/config.d/dzsec-roots
 #     make position irrelevant for the hosts that use it) ---
